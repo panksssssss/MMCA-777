@@ -1,62 +1,74 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
-st.title("Cloud Storage Growth Model")
+# ---------------- PAGE CONFIG ----------------
+st.set_page_config(page_title="Cloud Storage Dashboard", layout="wide")
 
-st.write("Predict corporate cloud storage usage using Exponential + Logistic Growth")
+st.title("☁️ Cloud Storage Growth Dashboard")
+st.markdown("Predict corporate cloud storage usage using **Exponential + Logistic Growth Model**")
 
-# ---------------- INPUTS ----------------
-st.sidebar.header("Input Parameters")
+# ---------------- SIDEBAR ----------------
+st.sidebar.header("⚙️ Input Parameters")
 
 S0 = st.sidebar.number_input("Initial Storage (GB)", value=50)
-S_max = st.sidebar.number_input("Maximum Storage Capacity (GB)", value=1000)
+S_max = st.sidebar.number_input("Maximum Capacity (GB)", value=1000)
 r = st.sidebar.slider("Growth Rate", 0.01, 0.2, 0.05)
 days = st.sidebar.slider("Time (Days)", 10, 365, 200)
 daily_upload = st.sidebar.number_input("Daily Upload (GB/day)", value=5)
 
+# ---------------- DATA ----------------
 t = np.linspace(0, days, 100)
 
-# ---------------- MODELS ----------------
-# Exponential Growth
 S_exp = S0 * np.exp(r * t)
-
-# Logistic Growth
 S_log = S_max / (1 + np.exp(-r * (t - days/2)))
-
-# Combined Model
 S_combined = np.minimum(S_exp + daily_upload * t, S_log)
 
-# ---------------- EXPANSION CHECK ----------------
 threshold = 0.8 * S_max
-expansion_day = None
 
+# ---------------- EXPANSION DAY ----------------
+expansion_day = None
 for i in range(len(t)):
     if S_combined[i] >= threshold:
         expansion_day = int(t[i])
         break
 
-# ---------------- PLOT ----------------
-plt.figure()
-plt.plot(t, S_exp, label="Exponential Growth")
-plt.plot(t, S_log, label="Logistic Growth")
-plt.plot(t, S_combined, label="Combined Model", linewidth=3)
+# ---------------- METRICS (TOP CARDS) ----------------
+col1, col2, col3 = st.columns(3)
 
-plt.axhline(y=threshold, linestyle='--', label="80% Capacity")
+col1.metric("📦 Final Storage (GB)", f"{S_combined[-1]:.2f}")
+col2.metric("⚡ Growth Rate", f"{r}")
+col3.metric("📅 Days Simulated", f"{days}")
 
-plt.xlabel("Time (days)")
-plt.ylabel("Storage (GB)")
-plt.title("Cloud Storage Growth Prediction")
-plt.legend()
-
-st.pyplot(plt)
-
-# ---------------- OUTPUT ----------------
-st.subheader("Results")
-
+# ---------------- ALERT ----------------
 if expansion_day:
-    st.warning(f"⚠️ Expansion needed around Day {expansion_day}")
+    st.error(f"⚠️ Expansion needed around Day {expansion_day}")
 else:
-    st.success("Storage within safe limits")
+    st.success("✅ Storage within safe limits")
 
-st.write(f"Final Storage Used: {S_combined[-1]:.2f} GB")
+# ---------------- INTERACTIVE PLOT ----------------
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(x=t, y=S_exp, mode='lines', name='Exponential'))
+fig.add_trace(go.Scatter(x=t, y=S_log, mode='lines', name='Logistic'))
+fig.add_trace(go.Scatter(x=t, y=S_combined, mode='lines', name='Combined', line=dict(width=4)))
+
+fig.add_hline(y=threshold, line_dash="dash", annotation_text="80% Capacity")
+
+fig.update_layout(
+    title="Cloud Storage Growth Prediction",
+    xaxis_title="Time (Days)",
+    yaxis_title="Storage (GB)",
+    template="plotly_dark"
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ---------------- EXTRA INSIGHT ----------------
+st.subheader("📊 Insights")
+
+st.write(f"""
+- Combined model prevents unrealistic exponential overflow  
+- Storage approaches limit due to logistic constraint  
+- Expansion threshold (80%) helps in planning infrastructure  
+""")
