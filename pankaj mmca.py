@@ -51,7 +51,7 @@ else:
 
 
 
-fig.add_hline(y=threshold, line_dash="dash", annotation_text="80% Capacity")
+
 
 fig.update_layout(
     title="Cloud Storage Growth Prediction",
