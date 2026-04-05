@@ -53,14 +53,7 @@ else:
 
 
 
-fig.update_layout(
-    title="Cloud Storage Growth Prediction",
-    xaxis_title="Time (Days)",
-    yaxis_title="Storage (GB)",
-    template="plotly_dark"
-)
 
-st.plotly_chart(fig, use_container_width=True)
 
 # ---------------- EXTRA INSIGHT ----------------
 st.subheader("📊 Insights")
