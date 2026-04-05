@@ -47,7 +47,7 @@ else:
     st.success("✅ Storage within safe limits")
 
 # ---------------- INTERACTIVE PLOT ----------------
-fig = go.Figure()
+
 
 fig.add_trace(go.Scatter(x=t, y=S_exp, mode='lines', name='Exponential'))
 fig.add_trace(go.Scatter(x=t, y=S_log, mode='lines', name='Logistic'))
