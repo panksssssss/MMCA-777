@@ -49,9 +49,7 @@ else:
 # ---------------- INTERACTIVE PLOT ----------------
 
 
-fig.add_trace(go.Scatter(x=t, y=S_exp, mode='lines', name='Exponential'))
-fig.add_trace(go.Scatter(x=t, y=S_log, mode='lines', name='Logistic'))
-fig.add_trace(go.Scatter(x=t, y=S_combined, mode='lines', name='Combined', line=dict(width=4)))
+
 
 fig.add_hline(y=threshold, line_dash="dash", annotation_text="80% Capacity")
 
